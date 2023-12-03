@@ -16,8 +16,8 @@ pub(crate) fn day1() {
 
     solve(example_lines);
 
-    // read lines from ./day1/input.txt
-    let input = std::fs::read_to_string("./day1/input.txt").unwrap();
+    // read lines from ./day1/day1.txt
+    let input = std::fs::read_to_string("../inputs/day1.txt").unwrap();
     // split input into lines
     let input: Vec<String> = input.lines().map(|s| s.to_string()).collect();
     solve(input);
@@ -65,7 +65,7 @@ pub(crate) fn day1() {
         "nine",
     ].iter().map(|s| s.to_string()).collect();
     solve_part_two(example_lines, numbers);
-    let input = std::fs::read_to_string("./day1/input.txt").unwrap();
+    let input = std::fs::read_to_string("../inputs/day1.txt").unwrap();
     let input: Vec<String> = input.lines().map(|s| s.to_string()).collect();
     let numbers: Vec<String> = vec![
         "one",

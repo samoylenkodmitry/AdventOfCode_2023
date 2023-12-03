@@ -21,7 +21,7 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
 
     part1(example_lines);
 
-    // read lines from ./day1/input.txt
+    // read lines from ./day1/day1.txt
     let input = std::fs::read_to_string("./inputs/day2.txt").unwrap();
     // split input into lines
     let input: Vec<String> = input.lines().map(|s| s.to_string()).collect();
@@ -39,7 +39,7 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
 
     part2(example_lines);
 
-    // read lines from ./day1/input.txt
+    // read lines from ./day1/day1.txt
     let input = std::fs::read_to_string("./inputs/day2.txt").unwrap();
     // split input into lines
     let input: Vec<String> = input.lines().map(|s| s.to_string()).collect();
