@@ -20,6 +20,20 @@ Distance:  9  40  200
     // split input into lines
     let input: Vec<String> = input.lines().map(|s| s.to_string()).collect();
     part1(input);
+
+    let example_lines =
+        vec![
+            "Time:      7  15   30",
+            "Distance:  9  40  200",
+        ];
+    // convert example lines to String
+    let example_lines: Vec<String> =
+        example_lines.iter().map(|s| s.to_string()).collect();
+
+    part2(example_lines);
+    let input = std::fs::read_to_string("./inputs/day6.txt").unwrap();
+    let input: Vec<String> = input.lines().map(|s| s.to_string()).collect();
+    part2(input);
 }
 
 fn part1(lines: Vec<String>) {
@@ -63,6 +77,19 @@ fn simulation_count(time: usize, distance: usize) -> usize {
 }
 
 fn part2(lines: Vec<String>) {
+    /*
+Time:      7  15   30
+Distance:  9  40  200
+*/
+    // same as part1, but
+    // time is concatenated to 71530
+    // and distance is concatenated to 940200
+    let time = lines[0].replace(" ", "").replace("Time:", "")
+        .parse::<usize>().unwrap();
+    let distance = lines[1].replace(" ", "").replace("Distance:", "")
+        .parse::<usize>().unwrap();
+
+    println!("part2: {}", simulation_count(time, distance));
 
 }
 
