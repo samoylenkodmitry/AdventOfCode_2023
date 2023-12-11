@@ -31,27 +31,68 @@ pub(crate) fn day11() {
     let example_lines: Vec<String> =
         example_lines.iter().map(|s| s.to_string()).collect();
 
-    part1(example_lines);
+    //part1(example_lines);
 
     let input = std::fs::read_to_string("./inputs/day11.txt").unwrap();
     // split input into lines
     let input: Vec<String> = input.lines().map(|s| s.to_string()).collect();
-    part1(input);
+    //part1(input);
+
+    // part 2
+
+    let example_lines =
+        vec![
+            "...#......",
+            ".......#..",
+            "#.........",
+            "..........",
+            "......#...",
+            ".#........",
+            ".........#",
+            "..........",
+            ".......#..",
+            "#...#.....",
+        ];
+    // convert example lines to String
+    let example_lines: Vec<String> =
+        example_lines.iter().map(|s| s.to_string()).collect();
+
+    part2(example_lines);
+
+    let input = std::fs::read_to_string("./inputs/day11.txt").unwrap();
+    // split input into lines
+    let input: Vec<String> = input.lines().map(|s| s.to_string()).collect();
+    part2(input);
 }
 
 fn part1(lines: Vec<String>) {
+    let extra_steps = 2;
+
+
+    let sum = solve(lines, extra_steps);
+    println!("part1: {}", sum);
+}
+fn part2(lines: Vec<String>) {
+    let extra_steps = 1_000_000;
+
+
+    let sum = solve(lines, extra_steps);
+    println!("part2: {}", sum);
+}
+
+fn solve(lines: Vec<String>, extra_steps: usize) -> usize {
     /*
-...#......
-.......#..
-#.........
-..........
-......#...
-.#........
-.........#
-..........
-.......#..
-#...#.....
-*/
+    ...#......
+    .......#..
+    #.........
+    ..........
+    ......#...
+    .#........
+    .........#
+    ..........
+    .......#..
+    #...#.....
+    */
     // convert lines to Vec<Vec<char>>
     let mut grid: Vec<Vec<char>> = lines.iter().map(|s| s.chars().collect()).collect();
     // first, let's find all rows and columns without any galaxies #
@@ -84,10 +125,8 @@ fn part1(lines: Vec<String>) {
 
     // now each pair will be (galaxy_num_small, galaxy_num_large)
     let mut shortest_paths: HashMap<(usize, usize), usize> = HashMap::new();
-    println!("galaxy nums {}, galaxy positions {:?}", galaxy_num, galaxy_positions);
     // now we are ready to do BFS from each galaxy
     for galaxy_num in 1..=galaxy_num {
-        println!("checking galaxy num {}", galaxy_num);
         let start_galaxy = galaxy_num;
         let start_pos = galaxy_positions.get(&galaxy_num).unwrap();
         let mut visited: HashSet<(usize, usize)> = HashSet::new();
@@ -99,7 +138,7 @@ fn part1(lines: Vec<String>) {
         queue.push(item, 0);
 
         while !queue.is_empty() {
-            let ((steps, (y, x)),_) = queue.pop().unwrap();
+            let ((steps, (y, x)), _) = queue.pop().unwrap();
             if !visited.insert((y, x)) {
                 continue;
             }
@@ -118,7 +157,7 @@ fn part1(lines: Vec<String>) {
             }
 
             let is_in_empty_row_or_col = empty_rows.contains(&y) || empty_cols.contains(&x);
-            let new_steps = if is_in_empty_row_or_col { steps + 2 } else { steps + 1 };
+            let new_steps = if is_in_empty_row_or_col { steps + extra_steps } else { steps + 1 };
             let priority = -(new_steps as i32);
 
             // up
@@ -149,8 +188,7 @@ fn part1(lines: Vec<String>) {
     for (_, &steps) in shortest_paths.iter() {
         sum += steps;
     }
-    println!("shortest paths {:?}", shortest_paths);
-    println!("part1: {}", sum);
+    sum
 }
 
 
