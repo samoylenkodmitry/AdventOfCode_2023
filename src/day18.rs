@@ -1,4 +1,5 @@
 use std::collections::{BinaryHeap, HashMap, HashSet};
+use std::i32;
 use linked_hash_map::LinkedHashMap;
 use priority_queue::PriorityQueue;
 
@@ -41,12 +42,25 @@ U 2 (#7a21e3)
     let example_lines: Vec<String> =
         example_lines.iter().map(|s| s.to_string()).collect();
 
-    part1(example_lines);
+    //part1(example_lines);
+
+    //let input = std::fs::read_to_string("./inputs/day18.txt").unwrap();
+    //// split input into lines
+    //let input: Vec<String> = input.lines().map(|s| s.to_string()).collect();
+    //part1(input);
+
+    // part 2
+    let example_lines: Vec<&str> = raw_str.lines().collect();
+    // convert example lines to String
+    let example_lines: Vec<String> =
+        example_lines.iter().map(|s| s.to_string()).collect();
+
+    part2(example_lines);
 
     let input = std::fs::read_to_string("./inputs/day18.txt").unwrap();
-    // split input into lines
+    //// split input into lines
     let input: Vec<String> = input.lines().map(|s| s.to_string()).collect();
-    part1(input);
+    part2(input);
 }
 
 fn part1(lines: Vec<String>) {
@@ -126,8 +140,8 @@ U 2 (#7a21e3)
 
     let mut normalized_grid: HashMap<(i32, i32), (String, char)> = grid.iter()
         .map(|((x, y), (color, segment))| {
-        ((x - min_x, y - min_y), (color.clone(), segment.clone()))
-    }).collect();
+            ((x - min_x, y - min_y), (color.clone(), segment.clone()))
+        }).collect();
     let width = max_x - min_x + 1;
     let height = max_y - min_y + 1;
     // print the grid, # for path, . for empty
@@ -200,5 +214,65 @@ fn get_path_part(mut prev_dir: char, dir: char) -> char {
 }
 
 fn part2(lines: Vec<String>) {
+    /*
+R 6 (#70c710)
+D 5 (#0dc571)
+L 2 (#5713f0)
+D 2 (#d2c081)
+R 2 (#59c680)
+D 2 (#411b91)
+L 5 (#8ceee2)
+U 2 (#caa173)
+L 1 (#1b58a2)
+U 2 (#caa171)
+R 2 (#7807d2)
+U 3 (#a77fa3)
+L 2 (#015232)
+U 2 (#7a21e3)
+*/
+    // will use shoelace formula to calculate area
 
+    let mut x: i128 = 0;
+    let mut y: i128 = 0;
+    let mut perimeter: i128 = 0;
+    let mut inner_points: i128 = 0;
+    lines.iter().for_each(|line| {
+        //"U 2 (#7a21e3)"
+        let mut split = line.split_whitespace();
+        let color = split.nth(2).unwrap().to_string().replace("(#", "").replace(")", "");
+        // we will parse the color like this:
+        // take 5 next digits, convert to decimal - this will be 'steps' count
+        // take last digit, this will be dir: 0 - R, 1 - D, 2 - L, 3 - U
+        let dir = match color.chars().last().unwrap() {
+            '0' => 'R',
+            '1' => 'D',
+            '2' => 'L',
+            '3' => 'U',
+            x => panic!("invalid direction {}", x),
+        };
+        // convert from hex
+        let steps: i128 = i128_from_hex_str(color[0..5].to_string());
+        perimeter += steps;
+        let (dx, dy) = match dir {
+            'U' => (0, -1),
+            'D' => (0, 1),
+            'L' => (-1, 0),
+            'R' => (1, 0),
+            _ => panic!("invalid direction"),
+        };
+
+        let new_x = x + dx * steps;
+        let new_y = y + dy * steps;
+        // shoelace formula
+        inner_points += x * new_y - new_x * y;
+        x = new_x;
+        y = new_y;
+    });
+
+    let area = (perimeter + inner_points) / 2 + 1;
+    println!("part2: {}", area);
+}
+
+fn i128_from_hex_str(hex_str: String) -> i128 {
+    i128::from_str_radix(&hex_str, 16).unwrap()
 }
