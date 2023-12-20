@@ -1,5 +1,5 @@
 use std::cmp::{max, min};
-use std::collections::{BinaryHeap, HashMap, HashSet};
+use std::collections::{BinaryHeap, HashMap, HashSet, VecDeque};
 use std::i32;
 use linked_hash_map::LinkedHashMap;
 use priority_queue::PriorityQueue;
@@ -196,6 +196,7 @@ fn part1(lines: Vec<String>) {
                 }
                 'b' => {
                     // send the same signal
+                    out_signal = signal;
                 }
                 _ => panic!("unknown type_name: {}", type_name)
             }
@@ -307,26 +308,33 @@ all states are saved between presses
             }
         }
     }
-    //println!("graph: {:?}", graph);
+    println!("graph: {:?}", graph);
 
-    let mut queue: Vec<(i32, String, String)> = Vec::new();
+    let mut queue: VecDeque<(i32, String, String)> = VecDeque::new();
     let mut total_high_count = 0;
     let mut total_low_count = 0;
-    let button_presses:i64 = 1;//1_000_000_000;
-    let mut found_rx_low = false;
-    let mut count = 0;
-    for button_press in 1..=button_presses {
+    let mut kl = 0;
+    let mut vm = 0;
+    let mut kv = 0;
+    let mut vb = 0;
+    for button_press in 1.. {
         if button_press % 1_000_000 == 0 {
             println!("button_press: {}", button_press);
         }
-        if found_rx_low {
-            break;
-        }
-        count += 1;
         let mut high_count = 0;
         let mut low_count = 0;
-        queue.push((0, "roadcaster".to_string(), "".to_string()));
-        while let Some((signal, module_name, from_name)) = queue.pop() {
+        queue.push_back((0, "roadcaster".to_string(), "".to_string()));
+        if kl != 0 && vm != 0 && kv != 0 && vb != 0 {
+            break;
+        }
+        while let Some((signal, module_name, from_name)) = queue.pop_front() {
+            if kl != 0 && vm != 0 && kv != 0 && vb != 0 {
+                println!("kl: {}", kl);
+                println!("vm: {}", vm);
+                println!("kv: {}", kv);
+                println!("vb: {}", vb);
+                break;
+            }
             /*
 &ll -> rx
 
@@ -338,8 +346,8 @@ all states are saved between presses
 so to send low to rx all inputs of ll must be high
 
              */
-            if module_name == "ll" && from_name == "kl" && signal == 1 {
-                //println!("kl: {}", button_press);
+            if kl == 0 && module_name == "ll" && from_name == "kl" && signal == 1 {
+                kl = button_press;
                 /*
 kl: 3917
 kl: 7834
@@ -350,8 +358,8 @@ kl: 23502
 
                  */
             }
-            if module_name == "ll" && from_name == "vm" && signal == 1 {
-                //println!("vm: {}", button_press);
+            if vm == 0 && module_name == "ll" && from_name == "vm" && signal == 1 {
+                vm = button_press;
                 /*
 vm: 4032
 vm: 4035
@@ -366,8 +374,8 @@ vm: 20059
 vm: 24062
                  */
             }
-            if module_name == "ll" && from_name == "kv" && signal == 1 {
-                //println!("kv: {}", button_press);
+            if kv == 0 && module_name == "ll" && from_name == "kv" && signal == 1 {
+                kv = button_press;
                 /*
 kv: 3968
 kv: 3981
@@ -381,8 +389,8 @@ kv: 19688
 
                  */
             }
-            if module_name == "ll" && from_name == "vb" && signal == 1 {
-                //println!("vb: {}", button_press);
+            if vb == 0 && module_name == "ll" && from_name == "vb" && signal == 1 {
+                vb = button_press;
                 /*
 vb: 3793
 vb: 7586
@@ -394,11 +402,6 @@ vb: 26551
 vb: 30344
 vb: 34137
                  */
-            }
-            if module_name == "ll" && from_name == "rx" && signal == 0 {
-              //      println!("vb: {}", button_press);
-                found_rx_low = true;
-                break;
             }
             //println!("queue: {:?}", queue);
             //println!("signal: {}, module_name: {}, from_name: {}", signal, module_name, from_name);
@@ -465,30 +468,24 @@ vb: 34137
                 }
                 'b' => {
                     // send the same signal
+                    out_signal = signal;
                 }
                 _ => panic!("unknown type_name: {}", type_name)
             }
-            if module_name == "vb" && out_signal == 1 {
-                println!("vb: {}", button_press);
-            }
             // send out_signal to all outputs
             if let Some(outputs) = graph.get(&module_name.clone()) {
-                if *type_name == '&' {
-                    for output in outputs {
-                        // insert at front of queue
-                        //println!("front of queue {} -{}- -> {}", module_name, out_signal, output);
-                        queue.insert(0, (out_signal, output.clone(), module_name.clone()));
-                    }
-                } else {
-                    for output in outputs {
-                        //println!("back of queue {} -{}- -> {}", module_name, out_signal, output);
-                        queue.push((out_signal, output.clone(), module_name.clone()));
-                    }
+                for output in outputs {
+                    //println!("back of queue {} -{}- -> {}", module_name, out_signal, output);
+                    queue.push_back((out_signal, output.clone(), module_name.clone()));
                 }
             }
         }
         total_high_count += high_count;
         total_low_count += low_count;
+        if button_press == 1000 {
+            println!("total: h= {}, l={}", total_high_count, total_low_count);
+            println!("part1: {}", total_high_count as u128 * total_low_count as u128);
+        }
     }
     /*
     kl: 3917
@@ -497,8 +494,7 @@ vb: 34137
     vb: 3793
      */
 
-    let answer:u128 = 3917u128 * 4032u128 * 3968u128 * 3793u128;
-    //println!("part2: {}", button_presses);
+    let answer:u128 = kl as u128 * vm as u128 * kv as u128 * vb as u128;
     println!("part2: {}", answer);
 }
 
