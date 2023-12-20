@@ -312,7 +312,7 @@ all states are saved between presses
     let mut queue: Vec<(i32, String, String)> = Vec::new();
     let mut total_high_count = 0;
     let mut total_low_count = 0;
-    let button_presses:i64 = 1_000_000_000_000;
+    let button_presses:i64 = 1;//1_000_000_000;
     let mut found_rx_low = false;
     let mut count = 0;
     for button_press in 1..=button_presses {
@@ -327,19 +327,75 @@ all states are saved between presses
         let mut low_count = 0;
         queue.push((0, "roadcaster".to_string(), "".to_string()));
         while let Some((signal, module_name, from_name)) = queue.pop() {
-            if module_name == "kl" && signal == 1 {
-               // println!("kl: {}", button_press);
+            /*
+&ll -> rx
+
+&vb -> ll
+&kl -> ll
+&vm -> ll
+&kv -> ll
+
+so to send low to rx all inputs of ll must be high
+
+             */
+            if module_name == "ll" && from_name == "kl" && signal == 1 {
+                //println!("kl: {}", button_press);
+                /*
+kl: 3917
+kl: 7834
+kl: 11751
+kl: 15668
+kl: 19585
+kl: 23502
+
+                 */
             }
-            if module_name == "vm" && signal == 1 {
-            //    println!("vm: {}", button_press);
+            if module_name == "ll" && from_name == "vm" && signal == 1 {
+                //println!("vm: {}", button_press);
+                /*
+vm: 4032
+vm: 4035
+vm: 8038
+vm: 8041
+vm: 12044
+vm: 12047
+vm: 16050
+vm: 16053
+vm: 20056
+vm: 20059
+vm: 24062
+                 */
             }
-            if module_name == "kv" && signal == 1 {
-            //    println!("kv: {}", button_press);
+            if module_name == "ll" && from_name == "kv" && signal == 1 {
+                //println!("kv: {}", button_press);
+                /*
+kv: 3968
+kv: 3981
+kv: 7898
+kv: 7911
+kv: 11828
+kv: 11841
+kv: 15758
+kv: 15771
+kv: 19688
+
+                 */
             }
-            if module_name == "vb" && signal == 1 {
-            //    println!("vb: {}", button_press);
+            if module_name == "ll" && from_name == "vb" && signal == 1 {
+                //println!("vb: {}", button_press);
+                /*
+vb: 3793
+vb: 7586
+vb: 11379
+vb: 15172
+vb: 18965
+vb: 22758
+vb: 26551
+vb: 30344
+vb: 34137
+                 */
             }
-            if module_name == "rx" && signal == 0 {
+            if module_name == "ll" && from_name == "rx" && signal == 0 {
               //      println!("vb: {}", button_press);
                 found_rx_low = true;
                 break;
@@ -412,6 +468,9 @@ all states are saved between presses
                 }
                 _ => panic!("unknown type_name: {}", type_name)
             }
+            if module_name == "vb" && out_signal == 1 {
+                println!("vb: {}", button_press);
+            }
             // send out_signal to all outputs
             if let Some(outputs) = graph.get(&module_name.clone()) {
                 if *type_name == '&' {
@@ -431,7 +490,15 @@ all states are saved between presses
         total_high_count += high_count;
         total_low_count += low_count;
     }
+    /*
+    kl: 3917
+    vm: 4032
+    kv: 3968
+    vb: 3793
+     */
 
-    println!("part2: {}", count - 1);
+    let answer:u128 = 3917u128 * 4032u128 * 3968u128 * 3793u128;
+    //println!("part2: {}", button_presses);
+    println!("part2: {}", answer);
 }
 
