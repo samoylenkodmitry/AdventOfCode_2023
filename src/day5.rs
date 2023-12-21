@@ -186,7 +186,7 @@ humidity-to-location map:
             nums = seeds_str.split(" ")
                 .map(|s| s.parse::<i128>().unwrap())
                 .collect();
-        } else if (line.ends_with("map:")) {
+        } else if line.ends_with("map:") {
             // ignore
         } else {
             // numbers destination - source - count
@@ -298,7 +298,7 @@ humidity-to-location map:
                 let count = ranges[i * 2 + 1];
                 nums.push((start, count));
             }
-        } else if (line.ends_with("map:")) {
+        } else if line.ends_with("map:") {
             // ignore
         } else {
             // numbers destination - source - count

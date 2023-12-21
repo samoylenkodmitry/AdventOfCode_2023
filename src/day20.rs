@@ -192,7 +192,7 @@ fn part1(lines: Vec<String>) {
                             break;
                         }
                     }
-                    out_signal = if all_high { 0 } else { 1 };;
+                    out_signal = if all_high { 0 } else { 1 };
                 }
                 'b' => {
                     // send the same signal
@@ -464,7 +464,7 @@ vb: 34137
                             break;
                         }
                     }
-                    out_signal = if all_high { 0 } else { 1 };;
+                    out_signal = if all_high { 0 } else { 1 };
                 }
                 'b' => {
                     // send the same signal

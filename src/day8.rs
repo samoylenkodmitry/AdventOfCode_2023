@@ -199,7 +199,7 @@ XXX = (XXX, XXX)
     let mut visited: HashSet<(String, usize)> = HashSet::new();
     // push to queue every graph key, ending with 'a'
     for (node, _) in graph.iter() {
-        if (node.ends_with('A')) {
+        if node.ends_with('A') {
             queue.push(node.to_string());
             visited.insert((node.to_string(), 0));
         }

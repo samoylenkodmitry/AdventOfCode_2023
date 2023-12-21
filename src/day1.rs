@@ -101,7 +101,7 @@ fn solve_part_two(example_lines: Vec<String>, numbers: Vec<String>) {
         let mut ind = 0;
         while ind < line.len() {
             let c = line.chars().nth(ind).unwrap();
-            if (c.is_digit(10)) {
+            if c.is_digit(10) {
                 if first_digit == -1 {
                     first_digit = c.to_digit(10).unwrap() as i32;
                 }

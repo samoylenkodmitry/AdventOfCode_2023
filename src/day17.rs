@@ -123,35 +123,35 @@ fn part1(lines: Vec<String>) {
         // let's match (direction)
         let can_go_straight = count < 3;
         match direction {
-            ('-') => {
+            '-' => {
                 // entry point is top left
             }
-            ('l') => {
+            'l' => {
                 // explore left, up, down
                 if can_go_straight && x > 0 { queue.push((x - 1, y, 'l', count + 1, total), (priority, -mh)) } else { None };
                 if y > 0 { queue.push((x, y - 1, 'u', 1, total), (priority, -mh)) } else { None };
                 if y < last_y { queue.push((x, y + 1, 'd', 1, total), (priority, -mh)) } else { None };
             }
-            ('r') => {
+            'r' => {
                 // explore right, up, down
                 if can_go_straight && x < last_x { queue.push((x + 1, y, 'r', count + 1, total), (priority, -mh)) } else { None };
                 if y > 0 { queue.push((x, y - 1, 'u', 1, total), (priority, -mh)) } else { None };
                 if y < last_y { queue.push((x, y + 1, 'd', 1, total), (priority, -mh)) } else { None };
             }
-            ('u') => {
+            'u' => {
                 // explore up, left, right
                 if can_go_straight && y > 0 { queue.push((x, y - 1, 'u', count + 1, total), (priority, -mh)) } else { None };
                 if x > 0 { queue.push((x - 1, y, 'l', 1, total), (priority, -mh)) } else { None };
                 if x < last_x { queue.push((x + 1, y, 'r', 1, total), (priority, -mh)) } else { None };
             }
-            ('d') => {
+            'd' => {
                 // explore down, left, right
                 if can_go_straight && y < last_y { queue.push((x, y + 1, 'd', count + 1, total), (priority, -mh)) } else { None };
                 if x > 0 { queue.push((x - 1, y, 'l', 1, total), (priority, -mh)) } else { None };
                 if x < last_x { queue.push((x + 1, y, 'r', 1, total), (priority, -mh)) } else { None };
             }
 
-            (_) => { panic!("unknown case {}", direction); }
+            _ => { panic!("unknown case {}", direction); }
         }
     }
 
@@ -227,35 +227,35 @@ fn part2(lines: Vec<String>) {
         let st = 3;
 
         match direction {
-            ('-') => {
+            '-' => {
                 // entry point is top left
             }
-            ('l') => {
+            'l' => {
                 // explore left, up, down
                 if can_go_straight && x > 0 { queue.push((x - 1, y, 'l', count + 1, straight_count_new, total), (priority, -mh)) } else { None };
                 if can_turn && y > 0 { queue.push((x, y - 1, 'u', 1, st, total), (priority, -mh)) } else { None };
                 if can_turn && y < last_y { queue.push((x, y + 1, 'd', 1, st, total), (priority, -mh)) } else { None };
             }
-            ('r') => {
+            'r' => {
                 // explore right, up, down
                 if can_go_straight && x < last_x { queue.push((x + 1, y, 'r', count + 1, straight_count_new, total), (priority, -mh)) } else { None };
                 if can_turn && y > 0 { queue.push((x, y - 1, 'u', 1, st, total), (priority, -mh)) } else { None };
                 if can_turn && y < last_y { queue.push((x, y + 1, 'd', 1, st, total), (priority, -mh)) } else { None };
             }
-            ('u') => {
+            'u' => {
                 // explore up, left, right
                 if can_go_straight && y > 0 { queue.push((x, y - 1, 'u', count + 1, straight_count_new, total), (priority, -mh)) } else { None };
                 if can_turn && x > 0 { queue.push((x - 1, y, 'l', 1, st, total), (priority, -mh)) } else { None };
                 if can_turn && x < last_x { queue.push((x + 1, y, 'r', 1, st, total), (priority, -mh)) } else { None };
             }
-            ('d') => {
+            'd' => {
                 // explore down, left, right
                 if can_go_straight && y < last_y { queue.push((x, y + 1, 'd', count + 1, straight_count_new, total), (priority, -mh)) } else { None };
                 if can_turn && x > 0 { queue.push((x - 1, y, 'l', 1, st, total), (priority, -mh)) } else { None };
                 if can_turn && x < last_x { queue.push((x + 1, y, 'r', 1, st, total), (priority, -mh)) } else { None };
             }
 
-            (_) => { panic!("unknown case {}", direction); }
+            _ => { panic!("unknown case {}", direction); }
         }
     }
 

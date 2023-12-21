@@ -145,7 +145,7 @@ fn solve(lines: Vec<String>, extra_steps: usize) -> usize {
             // check if we reached some galaxy
             if grid[y][x] == '#' {
                 let end_galaxy = positions_to_galaxy_num.get(&(y, x)).unwrap();
-                if (*end_galaxy != start_galaxy) {
+                if *end_galaxy != start_galaxy {
                     // make a key
                     let small_galaxy = std::cmp::min(start_galaxy, *end_galaxy);
                     let large_galaxy = std::cmp::max(start_galaxy, *end_galaxy);
