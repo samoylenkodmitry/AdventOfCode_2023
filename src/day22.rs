@@ -26,7 +26,21 @@ pub(crate) fn day22() {
     let input = std::fs::read_to_string("./inputs/day22.txt").unwrap();
     //// split input into lines
     let input: Vec<String> = input.lines().map(|s| s.to_string()).collect();
-    part1(input);
+    //part1(input);
+
+    // part 2
+
+    let example_lines: Vec<&str> = raw_str.lines().collect();
+    // convert example lines to String
+    let example_lines: Vec<String> =
+        example_lines.iter().map(|s| s.to_string()).collect();
+
+    part2(example_lines);
+
+    let input = std::fs::read_to_string("./inputs/day22.txt").unwrap();
+    //// split input into lines
+    let input: Vec<String> = input.lines().map(|s| s.to_string()).collect();
+    part2(input);
 }
 
 
@@ -74,15 +88,76 @@ fn parse_bricks(lines: Vec<String>) -> Vec<Brick> {
 }
 
 fn part1(lines: Vec<String>) {
+    let (bricks, brick_to_bottoms, brick_to_tops) = analyze_bricks(lines);
+
+    // now let's count all bricks that have only single brick below them, let's remember that brick
+    // we can use bricks_under HashMap for that
+    let mut bricks_single_under: HashSet<usize> = HashSet::new();
+    for (brick_ind, bricks_under_set) in &brick_to_bottoms {
+        if bricks_under_set.len() == 1 {
+            bricks_single_under.insert(bricks_under_set.iter().next().unwrap().clone());
+        }
+    }
+    let count = bricks.len() - bricks_single_under.len();
+
+    println!("Part 1: {}", count);
+}
+
+fn part2(lines: Vec<String>) {
+    let (bricks, brick_to_bottoms, brick_to_tops) = analyze_bricks(lines);
+    // for each brick
+    // how many bricks would fall if we remove it?
+    // if we remove a brick, all bricks that are on top of it would fall
+    // let's do a BFS from each brick
+    // brick_to_tops HashMap can be used for that
+    // let's use a VecDeque to store the bricks that we need to process
+    let mut indices: Vec<usize> = (0..bricks.len()).collect();
+    // sort by z
+    indices.sort_by(|a, b| {
+        let a = &bricks[*a];
+        let b = &bricks[*b];
+        a.z1.cmp(&b.z1)
+    });
+    let mut count = 0;
+    for brick_ind in indices {
+        let mut falling_bricks: HashSet<usize> = HashSet::new();
+        let mut bricks_to_process: VecDeque<usize> = VecDeque::new();
+        bricks_to_process.push_back(brick_ind);
+        while let Some(brick_ind) = bricks_to_process.pop_front() {
+            if !falling_bricks.insert(brick_ind) {
+                // if we have already processed this brick, continue
+                continue;
+            }
+            // now we need to find all bricks that are on top of this brick
+            // we can use brick_to_tops HashMap for that
+            if let Some(top_brick) = brick_to_tops.get(&brick_ind) {
+                for brick_over_ind in top_brick {
+                    // check if current brick lying on top of all falling
+                    let bottom_bricks = brick_to_bottoms.get(brick_over_ind).unwrap();
+                    if bottom_bricks.is_subset(&falling_bricks) {
+                        // if current brick is not lying on top of all falling
+                        // and add it to bricks_to_process
+                        bricks_to_process.push_back(*brick_over_ind);
+                    }
+                }
+            }
+        }
+        count += falling_bricks.len() - 1;
+    }
+
+    println!("Part 2: {}", count);
+}
+
+fn analyze_bricks(lines: Vec<String>) -> (Vec<Brick>, HashMap<usize, HashSet<usize>>, HashMap<usize, HashSet<usize>>) {
     /*
-    r###"1,0,1~1,2,1
-0,0,2~2,0,2
-0,2,3~2,2,3
-0,0,4~0,2,4
-2,0,5~2,2,5
-0,1,6~2,1,6
-1,1,8~1,1,9"###;
-     */
+        r###"1,0,1~1,2,1
+    0,0,2~2,0,2
+    0,2,3~2,2,3
+    0,0,4~0,2,4
+    2,0,5~2,2,5
+    0,1,6~2,1,6
+    1,1,8~1,1,9"###;
+         */
     // let's parse bricks coordinates [x1,y1,z1,x2,y2,z2], all numbers are 0..=512
     let mut bricks: Vec<Brick> = parse_bricks(lines);
 
@@ -147,8 +222,6 @@ fn part1(lines: Vec<String>) {
                 }
             }
         }
-        println!("sz2_max: {}", sz2_max);
-        println!("bricks_under_fall: {:?}", bricks_under_fall);
         if bricks_under_fall.is_empty() {
             // if there are no bricks under the falling brick
             // put it on the ground
@@ -186,26 +259,8 @@ fn part1(lines: Vec<String>) {
         brick_fall.z2 = sz2_max + diff + 1;
         stopped_bricks.insert(brick_fall_ind);
     }
-
-    println!("bricks_under: {:?}", brick_to_bottoms);
-    println!("bricks_over: {:?}", brick_to_tops);
-
-    // now let's count all bricks that have only single brick below them, let's remember that brick
-    // we can use bricks_under HashMap for that
-    let mut bricks_single_under: HashSet<usize> = HashSet::new();
-    for (brick_ind, bricks_under_set) in &brick_to_bottoms {
-        if bricks_under_set.len() == 1 {
-            bricks_single_under.insert(bricks_under_set.iter().next().unwrap().clone());
-        }
-    }
-    println!("bricks_single_under: {:?}", bricks_single_under);
-
-    let count = bricks.len() - bricks_single_under.len();
-
-    println!("Part 1: {}", count);
+    (bricks, brick_to_bottoms, brick_to_tops)
 }
-
-fn part2(input: &str) {}
 
 #[cfg(test)]
 mod tests_day22 {
