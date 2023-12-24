@@ -19,12 +19,25 @@ pub(crate) fn day24() {
     let example_lines: Vec<String> =
         example_lines.iter().map(|s| s.to_string()).collect();
 
-    part1(example_lines);
+    //part1(example_lines);
 
     let input = std::fs::read_to_string("./inputs/day24.txt").unwrap();
     //// split input into lines
     let input: Vec<String> = input.lines().map(|s| s.to_string()).collect();
-    part1(input);
+    //part1(input);
+
+    // part 2
+    let example_lines: Vec<&str> = raw_str.lines().collect();
+    // convert example lines to String
+    let example_lines: Vec<String> =
+        example_lines.iter().map(|s| s.to_string()).collect();
+
+    //part2(example_lines);
+
+    let input = std::fs::read_to_string("./inputs/day24.txt").unwrap();
+    //// split input into lines
+    let input: Vec<String> = input.lines().map(|s| s.to_string()).collect();
+    part2(input);
 }
 
 #[derive(PartialEq, Clone, Copy, PartialOrd, Debug)]
@@ -46,6 +59,17 @@ impl Point {
             .map(|s| s.trim().parse::<f64>().unwrap_or_else(|_| panic!("hello_pattern {line}")))
             .collect::<Vec<f64>>()[..] else { panic!("hello {line}") };
         Self { x, y, z, vx, vy, vz }
+    }
+
+    fn position_at_time(&self, time: i32) -> (f64, f64, f64) {
+        if time == 0 {
+            return (self.x, self.y, self.z);
+        }
+        (
+            self.x + self.vx * time as f64,
+            self.y + self.vy * time as f64,
+            self.z + self.vz * time as f64,
+        )
     }
 
     /*
@@ -172,7 +196,197 @@ fn part1(lines: Vec<String>) {
     println!("part1: {}", count);
 }
 
-fn part2(lines: Vec<String>) {}
+fn part2(lines: Vec<String>) {
+    // for part 2 we need to find
+    // the starting point and vector of the line
+    // so that it intersects with all other lines
+    let points: Vec<Point> = lines.iter()
+        .map(|line| Point::from_line(line))
+        .collect();
+    // sort points by (x and y and z)
+    let mut points = points;
+    points.sort_by(|a, b| {
+        let x = a.x.partial_cmp(&b.x).unwrap();
+        let y = a.y.partial_cmp(&b.y).unwrap();
+        let z = a.z.partial_cmp(&b.z).unwrap();
+        x.then(y).then(z)
+    });
+    // we must throw a stone from some point (Int, Int, Int)
+    // with some speed (Int, Int, Int)
+    // and intersect all the points
+    //
+    // if two points has the same X speed,
+    // like this
+    // A --->
+    //        B --->
+    // to shoot A then B with Int precision
+    // our X speed must be: Bx - Ax % shoot_speed_x == 0
+    // same for Y and Z
+    // let's collect all possible X, Y, Z speeds
+    // by analyzing all pairs of points with same X, Y or Z speeds
+
+    // speed range will be -250..250
+    let speed_range: i128 = 1000;
+    let mut possible_x_speeds: HashSet<i128> = HashSet::new();
+    let mut x_first = true;
+    let mut possible_y_speeds: HashSet<i128> = HashSet::new();
+    let mut y_first = true;
+    let mut possible_z_speeds: HashSet<i128> = HashSet::new();
+    let mut z_first = true;
+    // for each pair of points
+    for a in 0..points.len() {
+        let pa = points[a];
+        for b in 0..points.len() {
+            if a == b {
+                continue;
+            }
+            let pb = points[b];
+            let mut current_possible_x_speeds: HashSet<i128> = HashSet::new();
+            if pa.vx == pb.vx {
+                let dx = (pb.x - pa.x) as i128;
+                let vx = pa.vx as i128;
+                for speed in -speed_range..=speed_range {
+                    if speed != vx && dx % (speed - vx) == 0 {
+                        current_possible_x_speeds.insert(speed);
+                    }
+                }
+                // current set must intersect with previous set
+                if x_first {
+                    possible_x_speeds = current_possible_x_speeds;
+                    x_first = false;
+                } else {
+                    possible_x_speeds = possible_x_speeds
+                        .intersection(&current_possible_x_speeds)
+                        .map(|&x| x)
+                        .collect();
+                }
+            }
+            // y
+            let mut current_possible_y_speeds: HashSet<i128> = HashSet::new();
+            if pa.vy == pb.vy {
+                let dy = (pb.y - pa.y) as i128;
+                let vy = pa.vy as i128;
+                for speed in -speed_range..=speed_range {
+                    if speed != vy && dy % (speed - vy) == 0 {
+                        current_possible_y_speeds.insert(speed);
+                    }
+                }
+                // current set must intersect with previous set
+                if y_first {
+                    possible_y_speeds = current_possible_y_speeds;
+                    y_first = false;
+                } else {
+                    possible_y_speeds = possible_y_speeds
+                        .intersection(&current_possible_y_speeds)
+                        .map(|&x| x)
+                        .collect();
+                }
+            }
+            // z
+            let mut current_possible_z_speeds: HashSet<i128> = HashSet::new();
+            if pa.vz == pb.vz {
+                let dz = (pb.z - pa.z) as i128;
+                let vz = pa.vz as i128;
+                for speed in -speed_range..=speed_range {
+                    if speed != vz && dz % (speed - vz) == 0 {
+                        current_possible_z_speeds.insert(speed);
+                    }
+                }
+                // current set must intersect with previous set
+                if z_first {
+                    possible_z_speeds = current_possible_z_speeds;
+                    z_first = false;
+                } else {
+                    possible_z_speeds = possible_z_speeds
+                        .intersection(&current_possible_z_speeds)
+                        .map(|&x| x)
+                        .collect();
+                }
+            }
+        }
+    }
+    //println!("possible_x_speeds: {:?}", possible_x_speeds.len());
+    //println!("possible_y_speeds: {:?}", possible_y_speeds.len());
+    //println!("possible_z_speeds: {:?}", possible_z_speeds.len());
+    /*
+    possible_x_speeds: 1
+    possible_y_speeds: 1
+    possible_z_speeds: 1
+     */
+    let vx = possible_x_speeds.iter().next().unwrap();
+    let vy = possible_y_speeds.iter().next().unwrap();
+    let vz = possible_z_speeds.iter().next().unwrap();
+    let rvx:f64 = vx.clone() as f64;
+    let rvy = vy.clone() as f64;
+    let rvz = vz.clone() as f64;
+    //println!("vx : {} rvx: {}", vx, rvx);
+    // now calculate the starting point
+    // I don't want to solve this, just copy-pasted from the other solution
+    // I am sorry
+    /*
+    MA = (AVY-RVY)/(AVX-RVX)
+    MB = (BVY-RVY)/(BVX-RVX)
+    CA = APY - (MA*APX)
+    CB = BPY - (MB*BPX)
+    XPos = int((CB-CA)/(MA-MB))
+    YPos = int(MA*XPos + CA)
+    Time = (XPos - APX)//(AVX-RVX)
+    ZPos = APZ + (AVZ - RVZ)*Time
+     */
+    let a = points[0];
+    let avx = a.vx;
+    let avy = a.vy;
+    let avz = a.vz;
+    let apx = a.x;
+    let apy = a.y;
+    let apz = a.z;
+
+    let b = points[1];
+    let bvx = b.vx;
+    let bvy = b.vy;
+    let bpx = b.x;
+    let bpy = b.y;
+
+    let ma = (avy - rvy) / (avx - rvx);
+    let mb = (bvy - rvy) / (bvx - rvx);
+    println!("ma: {}, mb: {}", ma, mb);
+
+    let ca = apy - (ma * apx);
+    let cb = bpy - (mb * bpx);
+    println!("ca: {}, cb: {}", ca, cb);
+
+    let x_pos = (cb - ca) / (ma - mb);
+    let x_pos: i128 = x_pos as i128;
+    let x_pos:f64 = x_pos as f64;
+
+    let y_pos = ma * x_pos + ca;
+    let y_pos: i128 = y_pos as i128;
+    let y_pos:f64 = y_pos as f64;
+
+    let time = (x_pos as i128 - apx as i128) / (avx as i128 - rvx as i128);
+
+    let z_pos = apz as i128 + (avz - rvz)as i128 * time;
+
+    let x_pos: i128 = x_pos as i128;
+    let y_pos: i128 = y_pos as i128;
+    let z_pos: i128 = z_pos as i128;
+    println!("part2: {}", x_pos + y_pos + z_pos);
+    //not the right answer; your answer is too low  597670936440402
+    //not the right answer; your answer is too high 822086828221122
+    //                                              741991571910536
+}
+
+fn almost_equal(
+    p1: (f64, f64, f64),
+    p2: (f64, f64, f64)) -> bool {
+    let (x1, y1, z1) = p1;
+    let (x2, y2, z2) = p2;
+    let e = 10.;
+    //            9999999999995
+    //            0000000000146
+    (x1 - x2).abs() <= e && (y1 - y2).abs() <= e && (z1 - z2).abs() <= e
+}
+
 
 #[cfg(test)]
 mod tests {
