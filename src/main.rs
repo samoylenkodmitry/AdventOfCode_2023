@@ -1,4 +1,6 @@
 #![feature(iter_next_chunk)]
+#![feature(iter_array_chunks)]
+
 mod day1;
 mod day2;
 mod day3;
@@ -29,7 +31,7 @@ fn main() {
     //day2::day2();
     //day3::day3();
     //day4::day4();
-    //day5::day5(); // todo
+    day5::day5();
     //day6::day6();
     //day7::day7(); // todo
     //day8::day8();
@@ -49,5 +51,5 @@ fn main() {
     //day22::day22();
     //day23::day23();
     //day24::day24();
-    day25::day25();
+    //day25::day25();
 }
