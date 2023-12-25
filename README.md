@@ -1,4 +1,6 @@
-| Puzzle Number | YouTube Link                 |
+
+
+| Puzzle Number | YouTube KatCast Link                 |
 |---------------|------------------------------|
 | 25            | 😸 [Watch Video](https://youtu.be/vl-TCVfDM_c) |
 | 7             | 😺 [Watch Video](https://youtu.be/rQ1aMzpa33c) |
